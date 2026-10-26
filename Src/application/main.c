@@ -24,6 +24,7 @@
 #include "device_drivers/usart2.h"
 #include "modules/logger.h"
 #include "modules/event_queue.h"
+#include "modules/unit_tests.h"
 
 /* LED State */
 #define LED_ON 1U
@@ -36,6 +37,18 @@ typedef struct {
   uint32_t led_state;
   volatile uint32_t button_state;
 } app_state_t;
+
+struct commandStruct {
+  char const *name;
+  void (*execute)(void);
+  char const *help_text;
+};
+
+const struct commandStruct commands[] = {
+  {.name = "ver", .execute = &print_fw_version, .help_text = "prints the firmware version"},
+  {.name = "ledOn", .execute = &led_on, .help_text = "turns led on"},
+  {.name = "ledOff", .execute = &led_off, .help_text = "turns led off"},
+};
 
 static app_state_t app = {
   .led_state = LED_OFF,
@@ -77,17 +90,17 @@ static void button_init()
   NVIC_EnableIRQ(EXTI15_10_IRQn);
 }
 
-static void led_on()
-{
-  GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_HIGH);
-  app.led_state = LED_ON;
-}
-
-static void led_off()
-{
-  GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_LOW);
-  app.led_state = LED_OFF;
-}
+// static void led_on()
+// {
+//   GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_HIGH);
+//   app.led_state = LED_ON;
+// }
+//
+// static void led_off()
+// {
+//   GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_LOW);
+//   app.led_state = LED_OFF;
+// }
 
 
 static void toggle_led()

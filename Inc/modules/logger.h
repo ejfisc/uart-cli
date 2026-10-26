@@ -9,16 +9,17 @@
 #include "../device_drivers/usart2.h"
 #include "../device_drivers/systick.h"
 
-#define NUM_LOG_SUBSYSTEMS 3
+#define NUM_LOG_SUBSYSTEMS 4
 #define LOG_MAX (MAX_BUF_LEN - 2U)
 
 typedef enum {
     LOG_SYS = 0,
     LOG_BTN,
     LOG_CMD,
+    LOG_TESTS
 } log_subsystem_t;
 
-static const char *const sub_name[NUM_LOG_SUBSYSTEMS] = { "SYS", "BTN", "CMD" };
+static const char *const sub_name[NUM_LOG_SUBSYSTEMS] = { "SYS", "BTN", "CMD", "TEST" };
 
 typedef enum {
     LOG_LVL_NONE = 0,

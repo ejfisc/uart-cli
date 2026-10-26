@@ -46,6 +46,9 @@ add_executable(${CMAKE_PROJECT_NAME}
         Inc/modules/event_queue.h
         Src/device_drivers/clocks.c
         Inc/device_drivers/clocks.h
+        Src/modules/unit_tests.c
+        Inc/modules/unit_tests.h
+        Inc/modules/unit_tests.h
 )
 
 # Add STM32CubeMX generated sources
