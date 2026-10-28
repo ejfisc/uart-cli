@@ -23,8 +23,9 @@
 #include "device_drivers/systick.h"
 #include "device_drivers/usart2.h"
 #include "modules/logger.h"
-#include "modules/event_queue.h"
 #include "modules/unit_tests.h"
+#include "modules/command_handler.h"
+#include "modules/terminal_interface.h"
 
 /* LED State */
 #define LED_ON 1U
@@ -37,18 +38,6 @@ typedef struct {
   uint32_t led_state;
   volatile uint32_t button_state;
 } app_state_t;
-
-struct commandStruct {
-  char const *name;
-  void (*execute)(void);
-  char const *help_text;
-};
-
-const struct commandStruct commands[] = {
-  {.name = "ver", .execute = &print_fw_version, .help_text = "prints the firmware version"},
-  {.name = "ledOn", .execute = &led_on, .help_text = "turns led on"},
-  {.name = "ledOff", .execute = &led_off, .help_text = "turns led off"},
-};
 
 static app_state_t app = {
   .led_state = LED_OFF,
@@ -142,24 +131,33 @@ int main(void)
   log_set_output_level(LOG_BTN, LOG_LVL_DEBUG);
   led_init();
   button_init();
+  terminal_init();
 
 
   while (1)
   {
     if (usart2_rx_cplt) {
-      if (usart2_rx == (uint8_t)'h') {
-        led_on();
+      if (usart2_rx == (uint8_t)'\r' || usart2_rx == (uint8_t)'\n') {
+        process_command();
+        terminal_update_newline(); // update terminal (new line with "STM32 > ")
       }
-      else if (usart2_rx == (uint8_t)'l') {
-        led_off();
+      else if (usart2_rx == 0x7F) {
+        remove_char_from_command_str();
+        terminal_backspace();
+      }
+      else {
+        append_char_to_command_str((char)usart2_rx);
+        terminal_update_cursor(usart2_rx); // update terminal (echo character)
       }
       usart2_rx_cplt = false;
     }
 
-    if (app.button_state == BUTTON_PRESSED) {
-      log_print(LOG_BTN, LOG_LVL_INFO, "Button Pressed!");
-      app.button_state = BUTTON_RELEASED;
-    }
+    // if (app.button_state == BUTTON_PRESSED) {
+    //   log_print(LOG_BTN, LOG_LVL_INFO, "Button Pressed!");
+    //   app.button_state = BUTTON_RELEASED;
+    // }
+
+
   }
 }
 

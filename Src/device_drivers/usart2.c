@@ -6,7 +6,7 @@
 
 #define USART_BRR(clk, baud) (((clk) + (baud / 2U)) / (baud))
 
-extern uint8_t* usart2_rx;
+extern uint8_t usart2_rx;
 extern bool usart2_rx_cplt;
 
 void usart2_init(void)
@@ -77,8 +77,7 @@ void USART2_IRQHandler(void)
 {
     if (USART2->SR & (USART_SR_RXNE | USART_SR_ORE)) {
         // ignore overrun error for now - a cmd will be lost but not a problem in this context
-        *usart2_rx = USART2->DR; // read SR then DR clears ORE flag
-        usart2_rx++;
+        usart2_rx = USART2->DR; // read SR then DR clears ORE flag
         usart2_rx_cplt = true;
     }
 }

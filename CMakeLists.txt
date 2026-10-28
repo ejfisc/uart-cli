@@ -49,6 +49,10 @@ add_executable(${CMAKE_PROJECT_NAME}
         Src/modules/unit_tests.c
         Inc/modules/unit_tests.h
         Inc/modules/unit_tests.h
+        Src/modules/terminal_interface.c
+        Inc/modules/terminal_interface.h
+        Src/modules/command_handler.c
+        Inc/modules/command_handler.h
 )
 
 # Add STM32CubeMX generated sources
