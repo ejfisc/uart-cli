@@ -11,7 +11,7 @@ void command_init(const command_t *table, const uint32_t table_len) {
 }
 
 void process_command(void) {
-    for (uint32_t i = 0; i < cmd_count; i++) {
+    for (uint32_t i = 0; i < cmd_count + 1; i++) {
         if (str_equal(command_buffer, cmd_table[i].name)) {
             cmd_table[i].execute();
             len = 0;
@@ -23,16 +23,19 @@ void process_command(void) {
 void append_char_to_command_str(char str) {
     if (len < LINE_MAX - 1U) {
         command_buffer[len++] = str;
+        command_buffer[len] = '\0';
     }
 }
 
 void remove_char_from_command_str() {
     if (len > 0) {
         len--;
+        command_buffer[len] = '\0';
     }
 }
 
 static bool str_equal(const char* str1, const char* str2) {
+
     while (*str1 != '\0' && *str1 == *str2) {
         str1++;
         str2++;

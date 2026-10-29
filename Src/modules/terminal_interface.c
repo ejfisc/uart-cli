@@ -9,8 +9,6 @@ void terminal_init(void) {
 }
 
 void terminal_update_newline() {
-    usart2_write((uint8_t)'\r');
-    usart2_write((uint8_t)'\n');
     usart2_write_buf((uint8_t*)"STM32 > ", 8);
 }
 

@@ -16,6 +16,7 @@
   ******************************************************************************
   */
 #include <stdio.h>
+#include <string.h>
 
 #include "device_headers/stm32f446xx.h"
 #include "device_drivers/clocks.h"
@@ -117,9 +118,10 @@ static void toggle_led()
 
 void print_help(void) {
   for (uint32_t i = 0; i < sizeof(commands) / sizeof(commands[0]); i++) {
-    usart2_write_buf((uint8_t*)commands[i].name, sizeof(commands[i].name));
+    usart2_write_buf((uint8_t*)commands[i].name, strlen(commands[i].name));
     usart2_write_buf((uint8_t*)" - ", 3);
-    usart2_write_buf((uint8_t*)commands[i].help_text, sizeof(commands[i].help_text));
+    usart2_write_buf((uint8_t*)commands[i].help_text, strlen(commands[i].help_text));
+    usart2_write_buf((uint8_t*)"\r\n", 2);
   }
 }
 
@@ -146,9 +148,10 @@ int main(void)
   usart2_init();
   log_init();
   log_set_output_level(LOG_BTN, LOG_LVL_DEBUG);
+  log_set_output_level(LOG_TESTS, LOG_LVL_INFO);
   led_init();
   button_init();
-  command_init(commands, 4);
+  command_init(commands, sizeof(commands) / sizeof(commands[0]));
   terminal_init();
 
 
@@ -156,6 +159,7 @@ int main(void)
   {
     if (usart2_rx_cplt) {
       if (usart2_rx == (uint8_t)'\r' || usart2_rx == (uint8_t)'\n') {
+        usart2_write_buf((uint8_t*)"\r\n", 2);
         process_command();
         terminal_update_newline(); // update terminal (new line with "STM32 > ")
       }
