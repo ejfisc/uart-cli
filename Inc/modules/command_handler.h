@@ -5,9 +5,11 @@
 #ifndef COMMAND_HANDLER_H
 #define COMMAND_HANDLER_H
 
-#include "modules/unit_tests.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "device_drivers/usart2.h"
 
-static char* command_buffer[16];
+#define LINE_MAX 32U
 
 typedef struct {
     char const *name;
@@ -15,11 +17,12 @@ typedef struct {
     char const *help_text;
 } command_t;
 
-static const command_t commands[] = {
-    {.name = "ver", .execute = &print_fw_version, .help_text = "prints the firmware version"},
-    {.name = "ledOn", .execute = &led_on, .help_text = "turns led on"},
-    {.name = "ledOff", .execute = &led_off, .help_text = "turns led off"},
-};
+static char command_buffer[LINE_MAX];
+static uint32_t len;
+static uint32_t cmd_count;
+static const command_t *cmd_table;
+
+void command_init(const command_t *table, uint32_t table_len);
 
 /**
  * processes the command in the buffer
@@ -37,5 +40,7 @@ void append_char_to_command_str(char str);
  * removes the latest char from the command string buffer
  */
 void remove_char_from_command_str(void);
+
+static bool str_equal(const char* str1, const char* str2);
 
 #endif //COMMAND_HANDLER_H

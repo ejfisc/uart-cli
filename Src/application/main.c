@@ -34,6 +34,8 @@
 #define BUTTON_PRESSED 0U // active low
 #define BUTTON_RELEASED 1U
 
+static void print_help();
+
 typedef struct {
   uint32_t led_state;
   volatile uint32_t button_state;
@@ -42,6 +44,13 @@ typedef struct {
 static app_state_t app = {
   .led_state = LED_OFF,
   .button_state = BUTTON_RELEASED
+};
+
+static const command_t commands[] = {
+  {.name = "ver", .execute = &print_fw_version, .help_text = "prints the firmware version"},
+  {.name = "ledOn", .execute = &led_on, .help_text = "turns led on"},
+  {.name = "ledOff", .execute = &led_off, .help_text = "turns led off"},
+  {.name = "help", .execute = &print_help, .help_text = "prints each of the commands with a one-line description"},
 };
 
 volatile uint8_t usart2_rx;
@@ -106,6 +115,14 @@ static void toggle_led()
   }
 }
 
+void print_help(void) {
+  for (uint32_t i = 0; i < sizeof(commands) / sizeof(commands[0]); i++) {
+    usart2_write_buf((uint8_t*)commands[i].name, sizeof(commands[i].name));
+    usart2_write_buf((uint8_t*)" - ", 3);
+    usart2_write_buf((uint8_t*)commands[i].help_text, sizeof(commands[i].help_text));
+  }
+}
+
 /**
   * @brief This function handles EXTI line[15:10] interrupts
   */
@@ -131,6 +148,7 @@ int main(void)
   log_set_output_level(LOG_BTN, LOG_LVL_DEBUG);
   led_init();
   button_init();
+  command_init(commands, 4);
   terminal_init();
 
 
