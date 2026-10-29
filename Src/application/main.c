@@ -35,6 +35,8 @@
 #define BUTTON_PRESSED 0U // active low
 #define BUTTON_RELEASED 1U
 
+extern uint32_t len;
+
 static void print_help();
 
 typedef struct {
@@ -164,8 +166,10 @@ int main(void)
         terminal_update_newline(); // update terminal (new line with "STM32 > ")
       }
       else if (usart2_rx == 0x7F) {
-        remove_char_from_command_str();
-        terminal_backspace();
+        if (len > 0) {
+          remove_char_from_command_str();
+          terminal_backspace();
+        }
       }
       else {
         append_char_to_command_str((char)usart2_rx);

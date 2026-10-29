@@ -4,6 +4,8 @@
 
 #include "modules/command_handler.h"
 
+uint32_t len;
+
 
 void command_init(const command_t *table, const uint32_t table_len) {
     cmd_table = table;

@@ -12,5 +12,6 @@ void terminal_init(void);
 void terminal_update_newline(void);
 void terminal_update_cursor(uint8_t key);
 void terminal_backspace(void);
+void terminal_clear(void);
 
 #endif //TERMINAL_INTERFACE_H

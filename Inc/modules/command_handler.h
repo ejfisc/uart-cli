@@ -18,7 +18,6 @@ typedef struct {
 } command_t;
 
 static char command_buffer[LINE_MAX];
-static uint32_t len;
 static uint32_t cmd_count;
 static const command_t *cmd_table;
 
