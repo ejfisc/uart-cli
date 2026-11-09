@@ -26,7 +26,7 @@ void command_init(const command_t *table, uint32_t table_len);
 /**
  * processes the command in the buffer
  */
-void process_command(void);
+uint8_t process_command(void);
 
 
 /**

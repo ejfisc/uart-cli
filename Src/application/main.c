@@ -42,11 +42,13 @@ static void print_help();
 typedef struct {
   uint32_t led_state;
   volatile uint32_t button_state;
+  volatile uint32_t last_button_press_ms;
 } app_state_t;
 
 static app_state_t app = {
   .led_state = LED_OFF,
-  .button_state = BUTTON_RELEASED
+  .button_state = BUTTON_RELEASED,
+  .last_button_press_ms = 0U
 };
 
 static const command_t commands[] = {
@@ -135,7 +137,11 @@ void EXTI15_10_IRQHandler(void)
   // check if the interrupt happened on line 13
   if (EXTI->PR & EXTI_PR_PR13) {
     EXTI->PR = EXTI_PR_PR13; // clear using '=' not '|=' which would re-write a 1 to every other pending bit and clear it
-    app.button_state = BUTTON_PRESSED;
+    uint32_t now = systick_millis();
+    if ((now - app.last_button_press_ms) > 10) { // software debounce filter
+      app.last_button_press_ms = now;
+      app.button_state = BUTTON_PRESSED;
+    }
   }
 }
 
@@ -145,16 +151,19 @@ void EXTI15_10_IRQHandler(void)
   */
 int main(void)
 {
+  volatile uint8_t command_result;
   clocks_16MHz_init();
   systick_init();
   usart2_init();
   log_init();
   log_set_output_level(LOG_BTN, LOG_LVL_DEBUG);
   log_set_output_level(LOG_TESTS, LOG_LVL_INFO);
+  log_set_output_level(LOG_CMD, LOG_LVL_INFO);
   led_init();
   button_init();
   command_init(commands, sizeof(commands) / sizeof(commands[0]));
   terminal_init();
+
 
 
   while (1)
@@ -162,7 +171,10 @@ int main(void)
     if (usart2_rx_cplt) {
       if (usart2_rx == (uint8_t)'\r' || usart2_rx == (uint8_t)'\n') {
         usart2_write_buf((uint8_t*)"\r\n", 2);
-        process_command();
+        command_result = process_command();
+        if (command_result == 0) {
+          log_print(LOG_CMD, LOG_LVL_INFO, "Unknown command - use command 'help' to view available commands");
+        }
         terminal_update_newline(); // update terminal (new line with "STM32 > ")
       }
       else if (usart2_rx == 0x7F) {
@@ -178,10 +190,12 @@ int main(void)
       usart2_rx_cplt = false;
     }
 
-    // if (app.button_state == BUTTON_PRESSED) {
-    //   log_print(LOG_BTN, LOG_LVL_INFO, "Button Pressed!");
-    //   app.button_state = BUTTON_RELEASED;
-    // }
+    if (app.button_state == BUTTON_PRESSED) {
+      usart2_write_buf((uint8_t*)"\r\n", 2);
+      log_print(LOG_BTN, LOG_LVL_INFO, "Button Pressed!");
+      terminal_update_newline();
+      app.button_state = BUTTON_RELEASED;
+    }
 
 
   }

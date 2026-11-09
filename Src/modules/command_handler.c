@@ -12,14 +12,16 @@ void command_init(const command_t *table, const uint32_t table_len) {
     cmd_count = table_len;
 }
 
-void process_command(void) {
-    for (uint32_t i = 0; i < cmd_count + 1; i++) {
+uint8_t process_command(void) {
+    for (uint32_t i = 0; i < cmd_count; i++) {
         if (str_equal(command_buffer, cmd_table[i].name)) {
             cmd_table[i].execute();
             len = 0;
-            return;
+            return 1;
         }
     }
+    len = 0;
+    return 0;
 }
 
 void append_char_to_command_str(char str) {
