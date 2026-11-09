@@ -11,6 +11,9 @@
 
 #define LINE_MAX 32U
 
+#define CMD_SUCCESS 0
+#define UNKNOWN_CMD 1
+
 typedef struct {
     char const *name;
     void (*execute)(void);

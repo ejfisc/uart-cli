@@ -17,11 +17,11 @@ uint8_t process_command(void) {
         if (str_equal(command_buffer, cmd_table[i].name)) {
             cmd_table[i].execute();
             len = 0;
-            return 1;
+            return CMD_SUCCESS;
         }
     }
     len = 0;
-    return 0;
+    return UNKNOWN_CMD;
 }
 
 void append_char_to_command_str(char str) {

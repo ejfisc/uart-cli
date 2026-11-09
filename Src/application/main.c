@@ -151,7 +151,6 @@ void EXTI15_10_IRQHandler(void)
   */
 int main(void)
 {
-  volatile uint8_t command_result;
   clocks_16MHz_init();
   systick_init();
   usart2_init();
@@ -171,8 +170,7 @@ int main(void)
     if (usart2_rx_cplt) {
       if (usart2_rx == (uint8_t)'\r' || usart2_rx == (uint8_t)'\n') {
         usart2_write_buf((uint8_t*)"\r\n", 2);
-        command_result = process_command();
-        if (command_result == 0) {
+        if (process_command()) {
           log_print(LOG_CMD, LOG_LVL_INFO, "Unknown command - use command 'help' to view available commands");
         }
         terminal_update_newline(); // update terminal (new line with "STM32 > ")
