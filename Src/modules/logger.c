@@ -30,7 +30,7 @@ void log_print(const log_subsystem_t sys, const log_level_t lvl, const char* msg
     len = concat(line, len, LOG_MAX, msg);
     line[len++] = '\r';
     line[len++] = '\n';
-    usart2_write_buf((uint8_t*)line, len);
+    usart2_dma_write_buf((uint8_t*)line, len);
 }
 
 void log_set_output_level(const log_subsystem_t sys, const log_level_t lvl) {

@@ -22,11 +22,12 @@
 #include "device_drivers/clocks.h"
 #include "device_drivers/gpio.h"
 #include "device_drivers/systick.h"
-#include "device_drivers/usart2.h"
 #include "modules/logger.h"
 #include "modules/unit_tests.h"
 #include "modules/command_handler.h"
 #include "modules/terminal_interface.h"
+
+
 
 /* LED State */
 #define LED_ON 1U
@@ -58,8 +59,8 @@ static const command_t commands[] = {
   {.name = "help", .execute = &print_help, .help_text = "prints each of the commands with a one-line description"},
 };
 
-volatile uint8_t usart2_rx;
-volatile bool usart2_rx_cplt = false;
+extern uint8_t usart2_rx;
+extern bool usart2_rx_cplt = false;
 
 static void led_init()
 {
@@ -122,10 +123,10 @@ static void toggle_led()
 
 void print_help(void) {
   for (uint32_t i = 0; i < sizeof(commands) / sizeof(commands[0]); i++) {
-    usart2_write_buf((uint8_t*)commands[i].name, strlen(commands[i].name));
-    usart2_write_buf((uint8_t*)" - ", 3);
-    usart2_write_buf((uint8_t*)commands[i].help_text, strlen(commands[i].help_text));
-    usart2_write_buf((uint8_t*)"\r\n", 2);
+    usart2_dma_write_buf((uint8_t*)commands[i].name, strlen(commands[i].name));
+    usart2_dma_write_buf((uint8_t*)" - ", 3);
+    usart2_dma_write_buf((uint8_t*)commands[i].help_text, strlen(commands[i].help_text));
+    usart2_dma_write_buf((uint8_t*)"\r\n", 2);
   }
 }
 
@@ -153,7 +154,7 @@ int main(void)
 {
   clocks_16MHz_init();
   systick_init();
-  usart2_init();
+  usart2_dma_init();
   log_init();
   log_set_output_level(LOG_BTN, LOG_LVL_DEBUG);
   log_set_output_level(LOG_TESTS, LOG_LVL_INFO);
@@ -169,7 +170,7 @@ int main(void)
   {
     if (usart2_rx_cplt) {
       if (usart2_rx == (uint8_t)'\r' || usart2_rx == (uint8_t)'\n') {
-        usart2_write_buf((uint8_t*)"\r\n", 2);
+        usart2_dma_write_buf((uint8_t*)"\r\n", 2);
         if (process_command()) {
           log_print(LOG_CMD, LOG_LVL_INFO, "Unknown command - use command 'help' to view available commands");
         }
@@ -189,7 +190,7 @@ int main(void)
     }
 
     if (app.button_state == BUTTON_PRESSED) {
-      usart2_write_buf((uint8_t*)"\r\n", 2);
+      usart2_dma_write_buf((uint8_t*)"\r\n", 2);
       log_print(LOG_BTN, LOG_LVL_INFO, "Button Pressed!");
       terminal_update_newline();
       app.button_state = BUTTON_RELEASED;

@@ -53,6 +53,9 @@ add_executable(${CMAKE_PROJECT_NAME}
         Inc/modules/terminal_interface.h
         Src/modules/command_handler.c
         Inc/modules/command_handler.h
+        Src/device_drivers/usart2_dma.c
+        Inc/device_drivers/usart2_dma.h
+        Inc/device_drivers/usart2_dma.h
 )
 
 # Add STM32CubeMX generated sources
