@@ -40,6 +40,9 @@ void usart2_dma_init(void)
     while ((DMA1_Stream5->CR & DMA_SxCR_EN)) {} // wait till DMA stream is disabled
     // clear stream5 interrupt flags
     DMA1->HIFCR = DMA_HIFCR_CDMEIF5 | DMA_HIFCR_CTEIF5 | DMA_HIFCR_CHTIF5 | DMA_HIFCR_CTCIF5;
+    DMA1_Stream5->PAR = (uint32_t)(&(USART2->DR)); // set perihpheral address
+    DMA1_Stream5->M0AR = (uint32_t)(&usart2_rx); // set memory address
+    DMA1_Stream5->NDTR = 1; // set number of data items - I'm not sure you need this
 
 
     NVIC_EnableIRQ(USART2_IRQn);
